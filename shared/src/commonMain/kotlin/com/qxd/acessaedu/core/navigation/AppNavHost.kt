@@ -1,47 +1,35 @@
 package com.qxd.acessaedu.core.navigation
 
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import com.qxd.acessaedu.AuthScreen
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.qxd.acessaedu.features.auth.presentation.CreateAccountScreen
 import com.qxd.acessaedu.features.auth.presentation.LoginScreen
-import com.qxd.acessaedu.features.auth.presentation.VerifyCodeScreen
 
 @Composable
 fun AppNavHost() {
-    var screen by remember { mutableStateOf<AuthScreen>(AuthScreen.Login) }
+    val navController = rememberNavController()
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = Color.White
+    NavHost(
+        navController = navController,
+        startDestination = Routes.LOGIN
     ) {
-        when (val currentScreen = screen) {
-            AuthScreen.Login -> LoginScreen(
+        composable(Routes.LOGIN) {
+            LoginScreen(
                 onCreateAccountClick = {
-                    screen = AuthScreen.CreateAccount
+                    navController.navigate(Routes.CREATE_ACCOUNT)
                 }
             )
+        }
 
-            AuthScreen.CreateAccount -> CreateAccountScreen(
+        composable(Routes.CREATE_ACCOUNT) {
+            CreateAccountScreen(
                 onBackToLogin = {
-                    screen = AuthScreen.Login
+                    navController.popBackStack()
                 },
                 onCodeSent = { email ->
-                    screen = AuthScreen.VerifyCode(email)
-                }
-            )
-
-            is AuthScreen.VerifyCode -> VerifyCodeScreen(
-                email = currentScreen.email,
-                onBack = {
-                    screen = AuthScreen.CreateAccount
+                    navController.navigate("${Routes.VERIFY_CODE}/$email")
                 }
             )
         }

@@ -16,21 +16,45 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
+import com.qxd.acessaedu.features.auth.layout.AuthHeaderType
 import com.qxd.acessaedu.features.auth.layout.AuthLayout
 import com.qxd.acessaedu.features.auth.presentation.components.AuthTextField
 import com.qxd.acessaedu.ui.components.AppPrimaryButton
 import com.qxd.acessaedu.ui.theme.DefaultColors
 
+data class VerifyCodeScreen(
+    val email: String
+) : Screen {
+    @Composable
+    override fun Content() {
+        val navigator = LocalNavigator.currentOrThrow
+
+        VerifyCodeContent(
+            email = email,
+            onBack = {
+                navigator.pop()
+            }
+        )
+    }
+}
 
 @Composable
-fun VerifyCodeScreen(
+fun VerifyCodeContent(
     email: String,
     onBack: () -> Unit
 ) {
     var code by remember { mutableStateOf("") }
     var codeError by remember { mutableStateOf<String?>(null) }
 
-    AuthLayout {
+    AuthLayout(
+        headerType = AuthHeaderType.Title,
+        title = "Confirmar cadastro",
+        onBackClick = onBack,
+        contentHeightFraction = 0.83f
+    ) {
         Text(
             text = "Verificar e-mail",
             color = DefaultColors.TextDark,

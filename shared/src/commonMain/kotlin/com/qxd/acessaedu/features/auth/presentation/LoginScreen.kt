@@ -22,16 +22,31 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
+import com.qxd.acessaedu.features.auth.layout.AuthHeaderType
 import com.qxd.acessaedu.features.auth.layout.AuthLayout
 import com.qxd.acessaedu.features.auth.presentation.components.AuthTextField
 import com.qxd.acessaedu.features.auth.presentation.components.validatePassword
 import com.qxd.acessaedu.ui.components.AppPrimaryButton
-import com.qxd.acessaedu.ui.components.TermsRow
 import com.qxd.acessaedu.ui.theme.DefaultColors
 
+class LoginScreen : Screen {
+    @Composable
+    override fun Content() {
+        val navigator = LocalNavigator.currentOrThrow
+
+        LoginContent(
+            onCreateAccountClick = {
+                navigator.push(CreateAccountScreen())
+            }
+        )
+    }
+}
 
 @Composable
-fun LoginScreen(
+fun LoginContent(
     onCreateAccountClick: () -> Unit
 ) {
     var email by remember { mutableStateOf("") }
@@ -43,7 +58,10 @@ fun LoginScreen(
     var passwordError by remember { mutableStateOf<String?>(null) }
     var termsError by remember { mutableStateOf<String?>(null) }
 
-    AuthLayout {
+    AuthLayout (
+        headerType = AuthHeaderType.Logo,
+        contentHeightFraction = 0.70f
+    ) {
         Text(
             text = "Vamos começar!",
             color = DefaultColors.TextDark,
@@ -100,19 +118,8 @@ fun LoginScreen(
             onTrailingClick = {
                 showPassword = !showPassword
             },
-            maxLength = 24,
+            maxLength = 30,
             error = passwordError
-        )
-
-        Spacer(modifier = Modifier.height(6.dp))
-
-        TermsRow(
-            checked = acceptedTerms,
-            onCheckedChange = {
-                acceptedTerms = it
-                termsError = null
-            },
-            error = termsError
         )
 
         Spacer(modifier = Modifier.height(48.dp))

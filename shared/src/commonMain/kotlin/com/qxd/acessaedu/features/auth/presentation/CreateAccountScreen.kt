@@ -1,6 +1,7 @@
 package com.qxd.acessaedu.features.auth.presentation
 
 import acessaedu.shared.generated.resources.Res
+import acessaedu.shared.generated.resources.doc_icon
 import acessaedu.shared.generated.resources.mail
 import acessaedu.shared.generated.resources.person_icon
 import acessaedu.shared.generated.resources.uil_lock
@@ -20,6 +21,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
+import com.qxd.acessaedu.features.auth.layout.AuthHeaderType
 import com.qxd.acessaedu.features.auth.layout.AuthLayout
 import com.qxd.acessaedu.features.auth.presentation.components.AuthTextField
 import com.qxd.acessaedu.features.auth.presentation.components.validatePassword
@@ -27,37 +32,47 @@ import com.qxd.acessaedu.ui.components.AppPrimaryButton
 import com.qxd.acessaedu.ui.components.TermsRow
 import com.qxd.acessaedu.ui.theme.DefaultColors
 
+class CreateAccountScreen : Screen {
+    @Composable
+    override fun Content() {
+        val navigator = LocalNavigator.currentOrThrow
+
+        CreateAccountContent(
+            onBackToLogin = {
+                navigator.pop()
+            },
+            onCodeSent = { email ->
+                navigator.push(VerifyCodeScreen(email))
+            }
+        )
+    }
+}
 
 @Composable
-fun CreateAccountScreen(
+fun CreateAccountContent(
     onBackToLogin: () -> Unit,
     onCodeSent: (String) -> Unit
 ) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
+    var matricula by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
     var acceptedTerms by remember { mutableStateOf(false) }
 
     var nameError by remember { mutableStateOf<String?>(null) }
     var emailError by remember { mutableStateOf<String?>(null) }
+    var matriculaError by remember { mutableStateOf<String?>(null) }
+    var confirmPasswordError by remember { mutableStateOf<String?>(null) }
     var passwordError by remember { mutableStateOf<String?>(null) }
     var termsError by remember { mutableStateOf<String?>(null) }
 
-    AuthLayout {
-        Text(
-            text = "Criar conta",
-            color = DefaultColors.TextDark,
-            fontSize = 21.sp,
-            fontWeight = FontWeight.Bold
-        )
-
-        Text(
-            text = "Cadastre-se para continuar",
-            color = DefaultColors.TextDark,
-            fontSize = 12.sp
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
+    AuthLayout(
+        headerType = AuthHeaderType.Title,
+        title = "Criar conta",
+        onBackClick = onBackToLogin,
+        contentHeightFraction = 0.83f
+    ) {
 
         AuthTextField(
             value = name,
@@ -87,6 +102,20 @@ fun CreateAccountScreen(
         Spacer(modifier = Modifier.height(14.dp))
 
         AuthTextField(
+            value = matricula,
+            onValueChange = {
+                matricula = it
+                matriculaError = null
+            },
+            label = "Matrícula",
+            leadingIcon = Res.drawable.doc_icon,
+            keyboardType = KeyboardType.Number,
+            error = matriculaError
+        )
+
+        Spacer(modifier = Modifier.height(14.dp))
+
+        AuthTextField(
             value = password,
             onValueChange = {
                 password = it
@@ -101,11 +130,32 @@ fun CreateAccountScreen(
             leadingIcon = Res.drawable.uil_lock,
             keyboardType = KeyboardType.Password,
             visualTransformation = PasswordVisualTransformation(),
-            maxLength = 8,
+            maxLength = 30,
             error = passwordError
         )
 
-        Spacer(modifier = Modifier.height(6.dp))
+        Spacer(modifier = Modifier.height(14.dp))
+
+        AuthTextField(
+            value = password,
+            onValueChange = {
+                password = it
+                passwordError = if (it.isNotBlank() && it != password) {
+                    "As senhas devem ser iguais."
+                } else {
+                    null
+                }
+            },
+            label = "Confirmar senha",
+            leadingIcon = Res.drawable.uil_lock,
+            keyboardType = KeyboardType.Password,
+            visualTransformation = PasswordVisualTransformation(),
+            maxLength = 30,
+            error = confirmPasswordError
+        )
+
+
+        Spacer(modifier = Modifier.height(12.dp))
 
         TermsRow(
             checked = acceptedTerms,
@@ -116,7 +166,7 @@ fun CreateAccountScreen(
             error = termsError
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(28.dp))
 
         AppPrimaryButton(
             text = "Enviar código",
@@ -138,8 +188,27 @@ fun CreateAccountScreen(
                     hasError = true
                 }
 
-                if (password.length < 6) {
+                if(matricula.length < 6) {
+                    matriculaError = "Informe uma matrícula válida"
+                    hasError = true
+                }
+
+                val passwordValidationError = validatePassword(password)
+                if (password.isBlank()) {
+                    passwordError = "Informe uma senha."
+                    hasError = true
+                } else if (passwordValidationError != null) {
+                    passwordError = passwordValidationError
+                    hasError = true
+                }
+
+                if (password.length < 8) {
                     passwordError = "A senha deve ter pelo menos 8 caracteres."
+                    hasError = true
+                }
+
+                if(confirmPassword != password) {
+                    confirmPasswordError = "As senhas devem ser iguais."
                     hasError = true
                 }
 
