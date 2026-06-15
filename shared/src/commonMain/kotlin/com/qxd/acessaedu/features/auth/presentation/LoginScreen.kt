@@ -22,9 +22,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.currentOrThrow
 import com.qxd.acessaedu.features.auth.layout.AuthHeaderType
 import com.qxd.acessaedu.features.auth.layout.AuthLayout
 import com.qxd.acessaedu.features.auth.presentation.components.AuthTextField
@@ -32,33 +29,18 @@ import com.qxd.acessaedu.features.auth.presentation.components.validatePassword
 import com.qxd.acessaedu.ui.components.AppPrimaryButton
 import com.qxd.acessaedu.ui.theme.DefaultColors
 
-class LoginScreen : Screen {
-    @Composable
-    override fun Content() {
-        val navigator = LocalNavigator.currentOrThrow
-
-        LoginContent(
-            onCreateAccountClick = {
-                navigator.push(CreateAccountScreen())
-            }
-        )
-    }
-}
-
 @Composable
-fun LoginContent(
+fun LoginScreen(
     onCreateAccountClick: () -> Unit
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var acceptedTerms by remember { mutableStateOf(false) }
     var showPassword by remember { mutableStateOf(false) }
 
     var emailError by remember { mutableStateOf<String?>(null) }
     var passwordError by remember { mutableStateOf<String?>(null) }
-    var termsError by remember { mutableStateOf<String?>(null) }
 
-    AuthLayout (
+    AuthLayout(
         headerType = AuthHeaderType.Logo,
         contentHeightFraction = 0.70f
     ) {
@@ -84,8 +66,8 @@ fun LoginContent(
                 emailError = null
             },
             label = "Email",
-            leadingIcon = Res.drawable.mail ,
-            keyboardType = KeyboardType.Text,
+            leadingIcon = Res.drawable.mail,
+            keyboardType = KeyboardType.Email,
             error = emailError
         )
 
@@ -104,7 +86,7 @@ fun LoginContent(
             },
             label = "Senha",
             leadingIcon = Res.drawable.uil_lock,
-            keyboardType = KeyboardType.Text,
+            keyboardType = KeyboardType.Password,
             visualTransformation = if (showPassword) {
                 VisualTransformation.None
             } else {
@@ -129,7 +111,6 @@ fun LoginContent(
             onClick = {
                 emailError = null
                 passwordError = null
-                termsError = null
 
                 var hasError = false
 
@@ -140,11 +121,6 @@ fun LoginContent(
 
                 if (password.isBlank()) {
                     passwordError = "Senha incorreta. Tente novamente."
-                    hasError = true
-                }
-
-                if (!acceptedTerms) {
-                    termsError = "Você precisa aceitar os termos para continuar."
                     hasError = true
                 }
 

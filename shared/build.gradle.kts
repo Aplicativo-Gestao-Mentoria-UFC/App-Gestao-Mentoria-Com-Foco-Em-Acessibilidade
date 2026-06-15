@@ -74,8 +74,6 @@ kotlin {
             implementation("io.ktor:ktor-serialization-kotlinx-json:3.5.0")
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
             implementation("org.jetbrains.androidx.navigation:navigation-compose:2.9.2")
-            implementation("cafe.adriel.voyager:voyager-navigator:1.0.1")
-            implementation("cafe.adriel.voyager:voyager-transitions:1.0.1")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

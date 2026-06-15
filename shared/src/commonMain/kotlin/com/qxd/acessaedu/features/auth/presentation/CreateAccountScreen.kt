@@ -2,6 +2,8 @@ package com.qxd.acessaedu.features.auth.presentation
 
 import acessaedu.shared.generated.resources.Res
 import acessaedu.shared.generated.resources.doc_icon
+import acessaedu.shared.generated.resources.eye
+import acessaedu.shared.generated.resources.eye_slash
 import acessaedu.shared.generated.resources.mail
 import acessaedu.shared.generated.resources.person_icon
 import acessaedu.shared.generated.resources.uil_lock
@@ -19,11 +21,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.currentOrThrow
 import com.qxd.acessaedu.features.auth.layout.AuthHeaderType
 import com.qxd.acessaedu.features.auth.layout.AuthLayout
 import com.qxd.acessaedu.features.auth.presentation.components.AuthTextField
@@ -32,24 +32,8 @@ import com.qxd.acessaedu.ui.components.AppPrimaryButton
 import com.qxd.acessaedu.ui.components.TermsRow
 import com.qxd.acessaedu.ui.theme.DefaultColors
 
-class CreateAccountScreen : Screen {
-    @Composable
-    override fun Content() {
-        val navigator = LocalNavigator.currentOrThrow
-
-        CreateAccountContent(
-            onBackToLogin = {
-                navigator.pop()
-            },
-            onCodeSent = { email ->
-                navigator.push(VerifyCodeScreen(email))
-            }
-        )
-    }
-}
-
 @Composable
-fun CreateAccountContent(
+fun CreateAccountScreen(
     onBackToLogin: () -> Unit,
     onCodeSent: (String) -> Unit
 ) {
@@ -59,6 +43,8 @@ fun CreateAccountContent(
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var acceptedTerms by remember { mutableStateOf(false) }
+
+    var showPassword by remember { mutableStateOf(false) }
 
     var nameError by remember { mutableStateOf<String?>(null) }
     var emailError by remember { mutableStateOf<String?>(null) }
@@ -73,7 +59,6 @@ fun CreateAccountContent(
         onBackClick = onBackToLogin,
         contentHeightFraction = 0.83f
     ) {
-
         AuthTextField(
             value = name,
             onValueChange = {
@@ -125,11 +110,31 @@ fun CreateAccountContent(
                 } else {
                     validatePassword(it)
                 }
+
+                if (confirmPassword.isNotBlank()) {
+                    confirmPasswordError = if (confirmPassword != it) {
+                        "As senhas devem ser iguais."
+                    } else {
+                        null
+                    }
+                }
             },
             label = "Senha",
             leadingIcon = Res.drawable.uil_lock,
             keyboardType = KeyboardType.Password,
-            visualTransformation = PasswordVisualTransformation(),
+            visualTransformation = if (showPassword) {
+                VisualTransformation.None
+            } else {
+                PasswordVisualTransformation()
+            },
+            trailingIcon = if (showPassword) {
+                Res.drawable.eye
+            } else {
+                Res.drawable.eye_slash
+            },
+            onTrailingClick = {
+                showPassword = !showPassword
+            },
             maxLength = 30,
             error = passwordError
         )
@@ -137,10 +142,10 @@ fun CreateAccountContent(
         Spacer(modifier = Modifier.height(14.dp))
 
         AuthTextField(
-            value = password,
+            value = confirmPassword,
             onValueChange = {
-                password = it
-                passwordError = if (it.isNotBlank() && it != password) {
+                confirmPassword = it
+                confirmPasswordError = if (it.isNotBlank() && it != password) {
                     "As senhas devem ser iguais."
                 } else {
                     null
@@ -149,11 +154,22 @@ fun CreateAccountContent(
             label = "Confirmar senha",
             leadingIcon = Res.drawable.uil_lock,
             keyboardType = KeyboardType.Password,
-            visualTransformation = PasswordVisualTransformation(),
+            visualTransformation = if (showPassword) {
+                VisualTransformation.None
+            } else {
+                PasswordVisualTransformation()
+            },
+            trailingIcon = if (showPassword) {
+                Res.drawable.eye
+            } else {
+                Res.drawable.eye_slash
+            },
+            onTrailingClick = {
+                showPassword = !showPassword
+            },
             maxLength = 30,
             error = confirmPasswordError
         )
-
 
         Spacer(modifier = Modifier.height(12.dp))
 
@@ -173,7 +189,9 @@ fun CreateAccountContent(
             onClick = {
                 nameError = null
                 emailError = null
+                matriculaError = null
                 passwordError = null
+                confirmPasswordError = null
                 termsError = null
 
                 var hasError = false
@@ -188,8 +206,8 @@ fun CreateAccountContent(
                     hasError = true
                 }
 
-                if(matricula.length < 6) {
-                    matriculaError = "Informe uma matrícula válida"
+                if (matricula.length < 6) {
+                    matriculaError = "Informe uma matrícula válida."
                     hasError = true
                 }
 
@@ -207,7 +225,10 @@ fun CreateAccountContent(
                     hasError = true
                 }
 
-                if(confirmPassword != password) {
+                if (confirmPassword.isBlank()) {
+                    confirmPasswordError = "Confirme sua senha."
+                    hasError = true
+                } else if (confirmPassword != password) {
                     confirmPasswordError = "As senhas devem ser iguais."
                     hasError = true
                 }

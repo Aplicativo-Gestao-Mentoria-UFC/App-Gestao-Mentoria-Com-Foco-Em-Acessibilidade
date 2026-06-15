@@ -1,18 +1,31 @@
 package com.qxd.acessaedu.features.auth.layout
+import acessaedu.shared.generated.resources.Res
+import acessaedu.shared.generated.resources.arrow
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -22,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.qxd.acessaedu.ui.components.AcessaEduLogo
 import com.qxd.acessaedu.ui.theme.DefaultColors
+import org.jetbrains.compose.resources.painterResource
 
 enum class AuthHeaderType {
     Logo,
@@ -113,11 +127,11 @@ private fun AuthTitleHeader(
                     .clickable { onBackClick() },
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "←",
-                    color = DefaultColors.DarkBlue,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold
+                Icon(
+                    painter = painterResource(Res.drawable.arrow),
+                    contentDescription = "Voltar",
+                    tint = DefaultColors.TextDark,
+                    modifier = Modifier.size(18.dp)
                 )
             }
         } else {
