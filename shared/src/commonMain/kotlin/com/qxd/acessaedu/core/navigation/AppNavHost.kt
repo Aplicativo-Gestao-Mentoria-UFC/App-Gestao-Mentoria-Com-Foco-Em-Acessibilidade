@@ -19,6 +19,7 @@ import com.qxd.acessaedu.features.auth.presentation.CreateAccountScreen
 import com.qxd.acessaedu.features.auth.presentation.LoginScreen
 import com.qxd.acessaedu.features.auth.presentation.VerifyCodeScreen
 import com.qxd.acessaedu.ui.theme.DefaultColors
+import androidx.savedstate.read
 
 private const val NAV_ANIMATION_DURATION = 280
 
@@ -96,7 +97,7 @@ fun AppNavHost() {
                 )
             ) { backStackEntry ->
                 val email = backStackEntry.arguments
-                    ?.getString("email")
+                    ?.read { getString("email") }
                     .orEmpty()
 
                 VerifyCodeScreen(
