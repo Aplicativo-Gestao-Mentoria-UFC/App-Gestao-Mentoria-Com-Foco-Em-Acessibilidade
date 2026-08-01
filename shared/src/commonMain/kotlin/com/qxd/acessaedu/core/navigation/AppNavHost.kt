@@ -101,7 +101,7 @@ fun AppNavHost() {
                     .orEmpty()
 
                 VerifyCodeScreen(
-                    email = email,
+                    description = "Digite o código enviado para $email.",
                     onBack = {
                         navController.popBackStack()
                     }
