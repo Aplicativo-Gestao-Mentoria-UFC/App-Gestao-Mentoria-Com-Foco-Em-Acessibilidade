@@ -60,14 +60,21 @@ fun AuthLayout(
 
         when (headerType) {
             AuthHeaderType.Logo -> {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .align(Alignment.TopCenter)
-                        .padding(top = 38.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    AcessaEduLogo()
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    if (onBackClick != null) {
+                        Box(modifier = Modifier.padding(start = 22.dp, top = 22.dp)) {
+                            BackButton(onBackClick)
+                        }
+                    }
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 38.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        AcessaEduLogo()
+                    }
                 }
             }
 
@@ -119,21 +126,7 @@ private fun AuthTitleHeader(
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (onBackClick != null) {
-            Box(
-                modifier = Modifier
-                    .size(36.dp)
-                    .clip(CircleShape)
-                    .background(Color.White)
-                    .clickable { onBackClick() },
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    painter = painterResource(Res.drawable.arrow),
-                    contentDescription = "Voltar",
-                    tint = DefaultColors.TextDark,
-                    modifier = Modifier.size(18.dp)
-                )
-            }
+            BackButton(onBackClick)
         } else {
             Spacer(modifier = Modifier.size(36.dp))
         }
@@ -151,6 +144,25 @@ private fun AuthTitleHeader(
         }
 
         Spacer(modifier = Modifier.size(36.dp))
+    }
+}
+
+@Composable
+private fun BackButton(onBackClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .size(36.dp)
+            .clip(CircleShape)
+            .background(Color.White)
+            .clickable { onBackClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            painter = painterResource(Res.drawable.arrow),
+            contentDescription = "Voltar",
+            tint = DefaultColors.TextDark,
+            modifier = Modifier.size(18.dp)
+        )
     }
 }
 

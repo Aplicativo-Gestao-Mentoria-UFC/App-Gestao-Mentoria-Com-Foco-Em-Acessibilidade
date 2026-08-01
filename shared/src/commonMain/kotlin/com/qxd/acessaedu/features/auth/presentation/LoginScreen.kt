@@ -31,7 +31,8 @@ import com.qxd.acessaedu.ui.theme.DefaultColors
 
 @Composable
 fun LoginScreen(
-    onCreateAccountClick: () -> Unit
+    onCreateAccountClick: () -> Unit,
+    onForgotPasswordClick: () -> Unit
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -145,7 +146,7 @@ fun LoginScreen(
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.clickable {
-                    println("Recover password")
+                    onForgotPasswordClick()
                 }
             )
         }

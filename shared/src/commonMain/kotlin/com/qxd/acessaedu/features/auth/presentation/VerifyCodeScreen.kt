@@ -122,10 +122,6 @@ import com.qxd.acessaedu.ui.components.AppPrimaryButton
 import com.qxd.acessaedu.ui.theme.DefaultColors
 import kotlinx.coroutines.delay
 
-/**
- * Tela genérica de verificação de código (confirmação de cadastro, recuperação de senha, etc).
- * Título e descrição são parametrizáveis para permitir reaproveitamento em outros fluxos.
- */
 @Composable
 fun VerifyCodeScreen(
     onBack: () -> Unit,

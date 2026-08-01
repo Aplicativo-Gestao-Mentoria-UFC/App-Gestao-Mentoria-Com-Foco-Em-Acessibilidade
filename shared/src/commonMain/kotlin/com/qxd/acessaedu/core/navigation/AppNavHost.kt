@@ -16,7 +16,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.qxd.acessaedu.features.auth.presentation.CreateAccountScreen
+import com.qxd.acessaedu.features.auth.presentation.ForgotPasswordScreen
 import com.qxd.acessaedu.features.auth.presentation.LoginScreen
+import com.qxd.acessaedu.features.auth.presentation.NewPasswordScreen
+import com.qxd.acessaedu.features.auth.presentation.RecoveryMethod
 import com.qxd.acessaedu.features.auth.presentation.VerifyCodeScreen
 import com.qxd.acessaedu.ui.theme.DefaultColors
 import androidx.savedstate.read
@@ -73,6 +76,9 @@ fun AppNavHost() {
                 LoginScreen(
                     onCreateAccountClick = {
                         navController.navigate(Routes.CREATE_ACCOUNT)
+                    },
+                    onForgotPasswordClick = {
+                        navController.navigate(Routes.FORGOT_PASSWORD)
                     }
                 )
             }
@@ -88,22 +94,79 @@ fun AppNavHost() {
                 )
             }
 
+            composable(Routes.FORGOT_PASSWORD) {
+                val emailAddress = "alunomonitor@alu.ufc.br"
+                val phoneNumber = "(+91) 958-894-5529"
+
+                ForgotPasswordScreen(
+                    emailAddress = emailAddress,
+                    phoneNumber = phoneNumber,
+                    onBack = {
+                        navController.popBackStack()
+                    },
+                    onContinue = { method ->
+                        val contact = when (method) {
+                            RecoveryMethod.EMAIL -> emailAddress
+                            RecoveryMethod.SMS -> phoneNumber
+                        }
+                        navController.navigate("${Routes.VERIFY_CODE}/$contact?purpose=forgot_password")
+                    }
+                )
+            }
+
             composable(
-                route = "${Routes.VERIFY_CODE}/{email}",
+                route = "${Routes.VERIFY_CODE}/{contact}?purpose={purpose}",
                 arguments = listOf(
-                    navArgument("email") {
+                    navArgument("contact") {
                         type = NavType.StringType
+                    },
+                    navArgument("purpose") {
+                        type = NavType.StringType
+                        defaultValue = "signup"
                     }
                 )
             ) { backStackEntry ->
-                val email = backStackEntry.arguments
-                    ?.read { getString("email") }
+                val contact = backStackEntry.arguments
+                    ?.read { getString("contact") }
                     .orEmpty()
 
+                val purpose = backStackEntry.arguments
+                    ?.read { getString("purpose") }
+                    .orEmpty()
+
+                val isForgotPassword = purpose == "forgot_password"
+
                 VerifyCodeScreen(
-                    description = "Digite o código enviado para $email.",
+                    title = if (isForgotPassword) "Esqueci minha senha" else "Confirmar cadastro",
+                    description = if (isForgotPassword) {
+                        "O código foi enviado para $contact"
+                    } else {
+                        "Digite o código enviado para $contact."
+                    },
                     onBack = {
                         navController.popBackStack()
+                    },
+                    onVerify = { code, onError ->
+                        if (isForgotPassword) {
+                            navController.navigate(Routes.NEW_PASSWORD)
+                        } else {
+                            navController.navigate(Routes.LOGIN) {
+                                popUpTo(Routes.LOGIN) { inclusive = true }
+                            }
+                        }
+                    }
+                )
+            }
+
+            composable(Routes.NEW_PASSWORD) {
+                NewPasswordScreen(
+                    onBack = {
+                        navController.popBackStack()
+                    },
+                    onContinue = { newPassword ->
+                        navController.navigate(Routes.LOGIN) {
+                            popUpTo(Routes.LOGIN) { inclusive = true }
+                        }
                     }
                 )
             }
