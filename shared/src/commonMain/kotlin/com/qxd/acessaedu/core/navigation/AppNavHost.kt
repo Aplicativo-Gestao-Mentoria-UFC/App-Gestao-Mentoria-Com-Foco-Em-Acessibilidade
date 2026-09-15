@@ -10,19 +10,26 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.savedstate.read
+import com.qxd.acessaedu.core.presentation.components.MainTab
 import com.qxd.acessaedu.features.auth.presentation.CreateAccountScreen
 import com.qxd.acessaedu.features.auth.presentation.ForgotPasswordScreen
 import com.qxd.acessaedu.features.auth.presentation.LoginScreen
 import com.qxd.acessaedu.features.auth.presentation.NewPasswordScreen
-import com.qxd.acessaedu.features.auth.presentation.RecoveryMethod
 import com.qxd.acessaedu.features.auth.presentation.VerifyCodeScreen
+import com.qxd.acessaedu.features.calendar.presentation.CalendarScreen
+import com.qxd.acessaedu.features.classes.presentation.EnterClassCodeScreen
+import com.qxd.acessaedu.features.classes.presentation.TurmasScreen
+import com.qxd.acessaedu.features.home.presentation.HomeScreen
+import com.qxd.acessaedu.features.profile.presentation.ProfileScreen
+import com.qxd.acessaedu.features.classes.presentation.ClassDetailsScreen
 import com.qxd.acessaedu.ui.theme.DefaultColors
-import androidx.savedstate.read
 
 private const val NAV_ANIMATION_DURATION = 280
 
@@ -74,6 +81,14 @@ fun AppNavHost() {
         ) {
             composable(Routes.LOGIN) {
                 LoginScreen(
+                    onLoginClick = {
+                        navController.navigate(Routes.HOME) {
+                            popUpTo(Routes.LOGIN) {
+                                inclusive = true
+                            }
+                            launchSingleTop = true
+                        }
+                    },
                     onCreateAccountClick = {
                         navController.navigate(Routes.CREATE_ACCOUNT)
                     },
@@ -95,65 +110,14 @@ fun AppNavHost() {
             }
 
             composable(Routes.FORGOT_PASSWORD) {
-                val emailAddress = "alunomonitor@alu.ufc.br"
-                val phoneNumber = "(+91) 958-894-5529"
-
                 ForgotPasswordScreen(
-                    emailAddress = emailAddress,
-                    phoneNumber = phoneNumber,
+                    emailAddress = "email@exemplo.com",
+                    phoneNumber = "(85) 99999-9999",
                     onBack = {
                         navController.popBackStack()
                     },
-                    onContinue = { method ->
-                        val contact = when (method) {
-                            RecoveryMethod.EMAIL -> emailAddress
-                            RecoveryMethod.SMS -> phoneNumber
-                        }
-                        navController.navigate("${Routes.VERIFY_CODE}/$contact?purpose=forgot_password")
-                    }
-                )
-            }
-
-            composable(
-                route = "${Routes.VERIFY_CODE}/{contact}?purpose={purpose}",
-                arguments = listOf(
-                    navArgument("contact") {
-                        type = NavType.StringType
-                    },
-                    navArgument("purpose") {
-                        type = NavType.StringType
-                        defaultValue = "signup"
-                    }
-                )
-            ) { backStackEntry ->
-                val contact = backStackEntry.arguments
-                    ?.read { getString("contact") }
-                    .orEmpty()
-
-                val purpose = backStackEntry.arguments
-                    ?.read { getString("purpose") }
-                    .orEmpty()
-
-                val isForgotPassword = purpose == "forgot_password"
-
-                VerifyCodeScreen(
-                    title = if (isForgotPassword) "Esqueci minha senha" else "Confirmar cadastro",
-                    description = if (isForgotPassword) {
-                        "O código foi enviado para $contact"
-                    } else {
-                        "Digite o código enviado para $contact."
-                    },
-                    onBack = {
-                        navController.popBackStack()
-                    },
-                    onVerify = { code, onError ->
-                        if (isForgotPassword) {
-                            navController.navigate(Routes.NEW_PASSWORD)
-                        } else {
-                            navController.navigate(Routes.LOGIN) {
-                                popUpTo(Routes.LOGIN) { inclusive = true }
-                            }
-                        }
+                    onContinue = {
+                        navController.navigate("${Routes.VERIFY_CODE}/recuperacao@email.com")
                     }
                 )
             }
@@ -163,13 +127,119 @@ fun AppNavHost() {
                     onBack = {
                         navController.popBackStack()
                     },
-                    onContinue = { newPassword ->
+                    onContinue = {
                         navController.navigate(Routes.LOGIN) {
-                            popUpTo(Routes.LOGIN) { inclusive = true }
+                            popUpTo(Routes.LOGIN) {
+                                inclusive = true
+                            }
+                            launchSingleTop = true
                         }
                     }
                 )
             }
+
+            composable(
+                route = "${Routes.VERIFY_CODE}/{email}",
+                arguments = listOf(
+                    navArgument("email") {
+                        type = NavType.StringType
+                    }
+                )
+            ) { backStackEntry ->
+                val email = backStackEntry.arguments
+                    ?.read { getString("email") }
+                    .orEmpty()
+
+                VerifyCodeScreen(
+                    email = email,
+                    onBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            composable(Routes.HOME) {
+                HomeScreen(
+                    onTabClick = { tab ->
+                        navController.navigateToMainTab(tab)
+                    }
+                )
+            }
+
+            composable(Routes.TURMAS) {
+                TurmasScreen(
+                    onTabClick = { tab ->
+                        navController.navigateToMainTab(tab)
+                    },
+                    onAddClassClick = {
+                        navController.navigate(Routes.ENTER_CLASS_CODE) {
+                            launchSingleTop = true
+                        }
+                    },
+                    onClassDetailsClick = {
+                        navController.navigate(Routes.CLASS_DETAILS)
+                    }
+                )
+            }
+
+            composable(Routes.ENTER_CLASS_CODE) {
+                EnterClassCodeScreen(
+                    onBackClick = {
+                        navController.popBackStack()
+                    },
+                    onEnterClick = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            composable(Routes.CLASS_DETAILS) {
+                ClassDetailsScreen(
+                    onBackClick = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            composable(Routes.CALENDARIO) {
+                CalendarScreen(
+                    onTabClick = { tab ->
+                        navController.navigateToMainTab(tab)
+                    }
+                )
+            }
+
+            composable(Routes.PERFIL) {
+                ProfileScreen(
+                    onTabClick = { tab ->
+                        navController.navigateToMainTab(tab)
+                    },
+                    onLogoutClick = {
+                        navController.navigate(Routes.LOGIN) {
+                            popUpTo(0) {
+                                inclusive = true
+                            }
+                            launchSingleTop = true
+                        }
+                    }
+                )
+            }
+        }
+    }
+}
+
+private fun NavController.navigateToMainTab(tab: MainTab) {
+    val destination = when (tab) {
+        MainTab.HOME -> Routes.HOME
+        MainTab.TURMAS -> Routes.TURMAS
+        MainTab.CALENDARIO -> Routes.CALENDARIO
+        MainTab.MATERIAIS -> null
+        MainTab.PERFIL -> Routes.PERFIL
+    }
+
+    destination?.let { route ->
+        navigate(route) {
+            launchSingleTop = true
         }
     }
 }

@@ -31,6 +31,7 @@ import com.qxd.acessaedu.ui.theme.DefaultColors
 
 @Composable
 fun LoginScreen(
+    onLoginClick: () -> Unit,
     onCreateAccountClick: () -> Unit,
     onForgotPasswordClick: () -> Unit
 ) {
@@ -126,7 +127,7 @@ fun LoginScreen(
                 }
 
                 if (!hasError) {
-                    println("Login can be requested now")
+                    onLoginClick()
                 }
             }
         )

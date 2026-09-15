@@ -74,6 +74,9 @@ kotlin {
             implementation("io.ktor:ktor-serialization-kotlinx-json:3.5.0")
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
             implementation("org.jetbrains.androidx.navigation:navigation-compose:2.9.2")
+            implementation("org.jetbrains.compose.material:material-icons-extended:1.7.3")
+            implementation("com.kizitonwose.calendar:compose-multiplatform:2.10.1")
+            implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.7.1")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
